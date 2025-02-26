@@ -5,8 +5,8 @@ const config = {
     title: 'Water Agents Simulation',
     description: '',
     parent: 'game-container',
-    width: 1280,
-    height: 720,
+    width: 1000,
+    height: 1000,
     pixelArt: false,
     scene: [
         Start
