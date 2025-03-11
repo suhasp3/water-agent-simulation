@@ -6,66 +6,117 @@ export class Start extends Phaser.Scene {
     preload() {
         this.load.image('background', 'assets/river.png');
         this.load.image('logo', 'assets/phaser.png');
-
-        // The ship sprite is CC0 from https://ansimuz.itch.io - check out his other work!
         this.load.spritesheet('ship', 'assets/spaceship.png', { frameWidth: 176, frameHeight: 96 });
     }
 
     create() {
         // Background
-        this.background = this.add.tileSprite(640, 500, 1280, 1000, 'background');
+        this.background = this.add.tileSprite(500, 500, 1000, 800, 'background');
         this.background.setDepth(0);
-        // Button
-        let button = this.add.rectangle(130, 650, 200, 200, 0xffffff, 0);
-        button.setInteractive();
-        button.setDepth(1);
+//MEXICO MEETING PLACE
+        // Button (Invisible Rectangle)
+        let mexico_meeting_place = this.add.rectangle(130, 700, 150, 175, 0xffffff, 0);
+        mexico_meeting_place.setInteractive({ useHandCursor: true }); // Enables hover effect
+        mexico_meeting_place.setDepth(1);
+
         // Popup container
-        const popup = this.add.container(640, 400);
-        const box = this.add.rectangle(0, 0, 400, 300, 0xffffff, 0.8);
-        const person = this.add.text(0, 0, "Name: ", {
-            fontSize: '24px',
-            color: '#000000'
-        }).setOrigin(0.5);
-        const description = this.add.text(0, 40, "Description: This is the description", {
-            fontSize: '24px',
-            color: '#000000',
-            wordWrap: { width: 400, useAdvancedWrap: true }, // Set max width and enable advanced wrapping
-        }).setOrigin(0.5);
-        const age = this.add.text(0, 80, "Age: They are __ years old.", {
-            fontSize: '24px',
-            color: '#000000',
-            wordWrap: { width: 400, useAdvancedWrap: true }, // Set max width and enable advanced wrapping
+        const mexico_meeting_place_popup = this.add.container(110, 500);
 
-        }).setOrigin(0.5);
+        // Popup background box
+        const mexico_meeting_place_box = this.add.rectangle(0, 0, 200, 250, 0xffffff, 0.8);
 
-        popup.add([box, person, description, age]);
-        popup.setVisible(false);
-        popup.setDepth(2);
+        // Text elements (adjusted relative to the new box position)
+        const mexico_meeting_place_place_name = this.add.text(-90, -100, "Mexico Meeting Place", { fontSize: '16px', color: '#000000' , wordWrap: { width: 180, useAdvancedWrap: true }});
 
-        // Define interactive hit area for the popup
-        popup.setInteractive(new Phaser.Geom.Rectangle(-200, -150, 400, 300), Phaser.Geom.Rectangle.Contains);
-
-        // Button click event
-        button.on('pointerdown', () => {
-            console.log('Button clicked!');
-            button.setVisible(false);
-            popup.setVisible(true);
+        const mexico_meeting_place_description = this.add.text(-90, -60, "Description: This is the description", {
+            fontSize: '16px', color: '#000000', wordWrap: { width: 180, useAdvancedWrap: true }
         });
-
-        // Close the popup when clicked
-        popup.on('pointerdown', () => {
-            console.log('Popup clicked, closing...');
-            button.setVisible(true);
-            popup.setVisible(false);
-        });
+        mexico_meeting_place_popup.add([mexico_meeting_place_box, mexico_meeting_place_place_name, mexico_meeting_place_description]);
+        mexico_meeting_place_popup.setVisible(false);
+        mexico_meeting_place_popup.setDepth(2);
 
         // Button hover effects
-        button.on('pointerover', () => {
-            button.setFillStyle(0xffffff, 0.5);
+        mexico_meeting_place.on('pointerover', () => {
+            mexico_meeting_place_popup.setVisible(true);
         });
 
-        button.on('pointerout', () => {
-            button.setFillStyle(0xffffff, 0);
+        mexico_meeting_place.on('pointerout', () => {
+            mexico_meeting_place_popup.setVisible(false);
+        });
+
+        mexico_meeting_place.on('pointerdown', (pointer) => {
+            pointer.event.stopPropagation(); // Prevents click from triggering hover effects
+        });
+
+
+//USA MEETING PLACE
+        // Button (Invisible Rectangle)
+        let usa_meeting_place = this.add.rectangle(360, 250, 200, 130, 0xffffff, 0);
+        usa_meeting_place.setInteractive({ useHandCursor: true }); // Enables hover effect
+        usa_meeting_place.setDepth(1);
+
+        // Popup container
+        const usa_meeting_popup = this.add.container(150, 250);
+
+        // Popup background box
+        const usa_meeting_place_box = this.add.rectangle(0, 0, 200, 250, 0xffffff, 0.8);
+
+        // Text elements (adjusted relative to the new box position)
+        const usa_meeting_place_place_name = this.add.text(-90, -100, "USA Meeting Place", { fontSize: '16px', color: '#000000' , wordWrap: { width: 180, useAdvancedWrap: true }});
+
+        const usa_meeting_place_description = this.add.text(-90, -60, "Description: This is the description", {
+            fontSize: '16px', color: '#000000', wordWrap: { width: 180, useAdvancedWrap: true }
+        });
+        usa_meeting_popup.add([usa_meeting_place_box, usa_meeting_place_place_name, usa_meeting_place_description]);
+        usa_meeting_popup.setVisible(false);
+        usa_meeting_popup.setDepth(2);
+
+        // Button hover effects
+        usa_meeting_place.on('pointerover', () => {
+            usa_meeting_popup.setVisible(true);
+        });
+
+        usa_meeting_place.on('pointerout', () => {
+            usa_meeting_popup.setVisible(false);
+        });
+
+        usa_meeting_place.on('pointerdown', (pointer) => {
+            pointer.event.stopPropagation(); // Prevents click from triggering hover effects
+        });
+
+//BARN OR FARM
+        // Button (Invisible Rectangle)
+        let farm = this.add.rectangle(800, 220, 170, 150, 0xffffff, 0);
+        farm.setInteractive({ useHandCursor: true }); // Enables hover effect
+        farm.setDepth(1);
+
+        // Popup container
+        const farm_popup = this.add.container(600, 250);
+
+        // Popup background box
+        const farm_box = this.add.rectangle(0, 0, 200, 250, 0xffffff, 0.8);
+
+        // Text elements (adjusted relative to the new box position)
+        const farm_place_name = this.add.text(-90, -100, "USA Meeting Place", { fontSize: '16px', color: '#000000' , wordWrap: { width: 180, useAdvancedWrap: true }});
+
+        const farm_description = this.add.text(-90, -60, "Description: This is the description", {
+            fontSize: '16px', color: '#000000', wordWrap: { width: 180, useAdvancedWrap: true }
+        });
+        farm_popup.add([farm_box, farm_place_name, farm_description]);
+        farm_popup.setVisible(false);
+        farm_popup.setDepth(2);
+
+        // Button hover effects
+        farm.on('pointerover', () => {
+            farm_popup.setVisible(true);
+        });
+
+        farm.on('pointerout', () => {
+            farm_popup.setVisible(false);
+        });
+
+        farm.on('pointerdown', (pointer) => {
+            pointer.event.stopPropagation(); // Prevents click from triggering hover effects
         });
     }
 
