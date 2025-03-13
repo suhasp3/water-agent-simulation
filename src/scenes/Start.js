@@ -97,7 +97,7 @@ export class Start extends Phaser.Scene {
         const farm_box = this.add.rectangle(0, 0, 200, 250, 0xffffff, 0.8);
 
         // Text elements (adjusted relative to the new box position)
-        const farm_place_name = this.add.text(-90, -100, "USA Meeting Place", { fontSize: '16px', color: '#000000' , wordWrap: { width: 180, useAdvancedWrap: true }});
+        const farm_place_name = this.add.text(-90, -100, "Farm", { fontSize: '16px', color: '#000000' , wordWrap: { width: 180, useAdvancedWrap: true }});
 
         const farm_description = this.add.text(-90, -60, "Description: This is the description", {
             fontSize: '16px', color: '#000000', wordWrap: { width: 180, useAdvancedWrap: true }
