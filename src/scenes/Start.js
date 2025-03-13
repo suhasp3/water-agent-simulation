@@ -1,49 +1,29 @@
-export class Start extends Phaser.Scene
-{
-    constructor()
-    {
-        super('Start');
-    }
+export class Start extends Phaser.Scene {
+  constructor() {
+    super("Start");
+  }
 
-    preload()
-    {
-        this.load.image('background', 'assets/space.png');
-        this.load.image('logo', 'assets/phaser.png');
+  preload() {
+    // Load the tileset image
+    this.load.image("nature_tileset", "assets/nature_tileset.png");
 
-        //  The ship sprite is CC0 from https://ansimuz.itch.io - check out his other work!
-        this.load.spritesheet('ship', 'assets/spaceship.png', { frameWidth: 176, frameHeight: 96 });
-    }
+    // Load the tilemap JSON exported from Tiled
+    this.load.tilemapTiledJSON("rivermap", "assets/rivermap.json");
+  }
 
-    create()
-    {
-        this.background = this.add.tileSprite(640, 360, 1280, 720, 'background');
+  create() {
+    // Load the tilemap
+    const map = this.make.tilemap({ key: "rivermap" });
 
-        const logo = this.add.image(640, 200, 'logo');
+    // Load the tileset - the name must match what you used in Tiled!
+    const tileset = map.addTilesetImage("RPG Nature Tileset", "nature_tileset");
 
-        const ship = this.add.sprite(640, 360, 'ship');
+    // Create layers (Make sure "Ground" matches a layer in your Tiled map!)
+    const groundLayer = map.createLayer("Ground", tileset, 0, 0);
+    const objectLayer = map.createLayer("Objects", tileset, 0, 0);
 
-        ship.anims.create({
-            key: 'fly',
-            frames: this.anims.generateFrameNumbers('ship', { start: 0, end: 2 }),
-            frameRate: 15,
-            repeat: -1
-        });
-
-        ship.play('fly');
-
-        this.tweens.add({
-            targets: logo,
-            y: 400,
-            duration: 1500,
-            ease: 'Sine.inOut',
-            yoyo: true,
-            loop: -1
-        });
-    }
-
-    update()
-    {
-        this.background.tilePositionX += 2;
-    }
+    // Optional: Adjust camera to fit the map
+    this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+    this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+  }
 }
-
