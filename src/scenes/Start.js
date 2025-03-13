@@ -34,7 +34,38 @@ export class Start extends Phaser.Scene {
         console.log("Player Created:", this.player);
         this.player.setCollideWorldBounds(true);
         this.player.setDepth(10); // Ensure it's drawn on top
-
+        
+        // Create animations
+        this.anims.create({
+            key: "walk-down",
+            frames: this.anims.generateFrameNumbers("farmer", { start: 0, end: 2 }),
+            frameRate: 10,
+            repeat: -1
+        });
+        
+        this.anims.create({
+            key: "walk-left",
+            frames: this.anims.generateFrameNumbers("farmer", { start: 3, end: 5 }),
+            frameRate: 10,
+            repeat: -1
+        });
+        
+        this.anims.create({
+            key: "walk-right",
+            frames: this.anims.generateFrameNumbers("farmer", { start: 6, end: 8 }),
+            frameRate: 10,
+            repeat: -1
+        });
+        
+        this.anims.create({
+            key: "walk-up",
+            frames: this.anims.generateFrameNumbers("farmer", { start: 9, end: 11 }),
+            frameRate: 10,
+            repeat: -1
+        });
+        
+        console.log("Animations created!"); // Debugging check
+        
         
     
         // Enable collision
