@@ -5,10 +5,10 @@ export class Start extends Phaser.Scene {
 
     preload() {
         // Load the tileset image
-        this.load.image("nature_tileset", "assets/nature_tileset.png");
+        this.load.image("nature tiles", "assets/nature_tileset.png");
 
         // Load the tilemap JSON exported from Tiled
-        this.load.tilemapTiledJSON("rivermap", "assets/rivermap.json");
+        this.load.tilemapTiledJSON("rivermap", "assets/river.json");
 
         // Load the player sprite sheet
         this.load.spritesheet("farmer", "assets/farmer.png", {
@@ -21,11 +21,11 @@ export class Start extends Phaser.Scene {
         // Load the tilemap
         console.log("create fuction started");
         const map = this.make.tilemap({ key: "rivermap" });
-        const tileset = map.addTilesetImage("RPG Nature Tileset", "nature_tileset");
+        const tileset = map.addTilesetImage("nature", "nature tiles");
     
         // Create layers
-        const groundLayer = map.createLayer("Ground", tileset, 0, 0);
-        const objectLayer = map.createLayer("Objects", tileset, 0, 0);
+        const groundLayer = map.createLayer("Tile Layer 1", tileset, 0, 0);
+        const objectLayer = map.createLayer("Tile Layer 2", tileset, 0, 0);
     
         objectLayer.setCollisionByProperty({ collides: true });
     
