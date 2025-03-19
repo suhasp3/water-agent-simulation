@@ -16,7 +16,7 @@ export class Start extends Phaser.Scene {
         const groundLayer = map.createLayer("Tile Layer 1", tileset, 0, 0);
         groundLayer.setCollision([152]); // Prevent walking on water
         const objectLayer = map.createLayer("Tile Layer 2", tileset, 0, 0);
-        objectLayer.setCollisionByProperty({ collides: true });
+        objectLayer.setCollision([21,3]); // Prevent walking into trees
 
         this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 
