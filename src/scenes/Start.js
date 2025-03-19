@@ -4,8 +4,15 @@ export class Start extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image("nature tiles", "assets/nature_tileset.png");
-    this.load.tilemapTiledJSON("rivermap", "assets/river.json");
+    this.load.image("nature tiles", "assets/nature.png");
+    this.load.image("barn tiles", "assets/barn.png");
+    this.load.image("barn object tiles", "assets/barn_objects.png");
+    this.load.image("city hall tiles", "assets/city_hall.png");
+    this.load.image("fence tiles", "assets/fence.png");
+    this.load.image("townsquare tiles", "assets/townsquare.png");
+
+
+    this.load.tilemapTiledJSON("rivermap", "assets/new_river.json");
     this.load.spritesheet("farmer", "assets/farmer.png", {
       frameWidth: 32,
       frameHeight: 32,
@@ -15,11 +22,19 @@ export class Start extends Phaser.Scene {
   create() {
     console.log("create function started");
     const map = this.make.tilemap({ key: "rivermap" });
-    const tileset = map.addTilesetImage("nature", "nature tiles");
-    const groundLayer = map.createLayer("Tile Layer 1", tileset, 0, 0);
+    const nature_tileset = map.addTilesetImage("nature", "nature tiles");
+    const barn_tileset = map.addTilesetImage("barn", "barn tiles");
+    const object_tileset = map.addTilesetImage("barn_objects", "barn object tiles");
+    const city_hall_tileset = map.addTilesetImage("city_hall", "city hall tiles");
+    const fence_tileset = map.addTilesetImage("fence", "fence tiles");  
+    const townsquare_tileset = map.addTilesetImage("townsquare", "townsquare tiles");
+
+    const groundLayer = map.createLayer("ground", nature_tileset, 0, 0);
     groundLayer.setCollision([152]); // Prevent walking on water
-    const objectLayer = map.createLayer("Tile Layer 2", tileset, 0, 0);
-    objectLayer.setCollision([21,3]);
+    const buildingLayer = map.createLayer("buildings", barn_tileset,city_hall_tileset, townsquare_tileset, 0, 0);
+    // objectLayer.setCollision([21,3]);
+    const objectLayer = map.createLayer("objects", object_tileset,fence_tileset, 0, 0);
+
 
     this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 
