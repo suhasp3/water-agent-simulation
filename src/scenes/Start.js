@@ -14,6 +14,7 @@ export class Start extends Phaser.Scene {
         const map = this.make.tilemap({ key: "rivermap" });
         const tileset = map.addTilesetImage("nature", "nature tiles");
         const groundLayer = map.createLayer("Tile Layer 1", tileset, 0, 0);
+        groundLayer.setCollision([152]); // Prevent walking on water
         const objectLayer = map.createLayer("Tile Layer 2", tileset, 0, 0);
         objectLayer.setCollisionByProperty({ collides: true });
 
@@ -31,6 +32,9 @@ export class Start extends Phaser.Scene {
 
         this.physics.add.collider(this.player, objectLayer);
         this.physics.add.collider(this.player2, objectLayer); // Add collider for player2
+        this.physics.add.collider(this.player, groundLayer); // Player collides with water
+        this.physics.add.collider(this.player2, groundLayer); // NPC collides with water
+
 
         this.cameras.main.startFollow(this.player);
         this.cameras.main.setZoom(2);
