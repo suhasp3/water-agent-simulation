@@ -64,11 +64,12 @@ export class Start extends Phaser.Scene {
     console.log("Object layer data:", objectLayer.layer.data);
 
     groundLayer.setCollision([164, 54]);
-    buildingLayer.setCollision([1,5]);
+    buildingLayer.setCollision([1,5,13,33]);
+    objectLayer.setCollision([11,194,197,200,198,201]);
 
-    groundLayer.setCollisionByExclusion([-1]);
-    buildingLayer.setCollisionByExclusion([-1]);
-    objectLayer.setCollisionByExclusion([-1]);
+    // groundLayer.setCollisionByExclusion([-1]);
+    // buildingLayer.setCollisionByExclusion([-1]);
+    // objectLayer.setCollisionByExclusion([-1]);
 
     groundLayer.setDepth(0);
     buildingLayer.setDepth(1);
