@@ -64,7 +64,7 @@ export class Start extends Phaser.Scene {
     console.log("Object layer data:", objectLayer.layer.data);
 
     groundLayer.setCollision([164, 54]);
-    buildingLayer.setCollision([1,5]);
+    buildingLayer.setCollision([1, 5]);
 
     groundLayer.setCollisionByExclusion([-1]);
     buildingLayer.setCollisionByExclusion([-1]);
@@ -74,6 +74,9 @@ export class Start extends Phaser.Scene {
     buildingLayer.setDepth(1);
     objectLayer.setDepth(2);
     this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+
+    this.player = this.physics.add.sprite(400, 300, "farmer");
+    this.player.setCollideWorldBounds(true).setDepth(10);
 
     this.npc1 = this.physics.add.sprite(300, 300, "farmer");
     this.npc2 = this.physics.add.sprite(200, 200, "farmer");
@@ -105,20 +108,28 @@ export class Start extends Phaser.Scene {
       repeat: -1,
     });
 
+    this.physics.add.collider(this.player, groundLayer);
+    this.physics.add.collider(this.player, buildingLayer);
+    this.physics.add.collider(this.player, objectLayer);
+
     this.physics.add.collider(this.npc1, groundLayer);
-    this.physics.add.collider(this.npc2, groundLayer);
     this.physics.add.collider(this.npc1, buildingLayer);
-    this.physics.add.collider(this.npc2, buildingLayer);
     this.physics.add.collider(this.npc1, objectLayer);
+
+    this.physics.add.collider(this.npc2, groundLayer);
+    this.physics.add.collider(this.npc2, buildingLayer);
     this.physics.add.collider(this.npc2, objectLayer);
 
+    this.physics.add.collider(this.player, this.npc1);
+    this.physics.add.collider(this.player, this.npc2);
     this.physics.add.collider(this.npc1, this.npc2);
 
-    this.cameras.main.setZoom(2);
     this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+    this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+    this.cameras.main.setZoom(2);
     this.cameras.main.setBackgroundColor("#87CEEB");
 
-    this.cameraSpeed = 10;
+    this.playerSpeed = 150;
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -170,6 +181,14 @@ export class Start extends Phaser.Scene {
         this.tileDebug.destroy();
         this.tileDebug = null;
       }
+    });
+
+    this.input.keyboard.on("keydown-Q", () => {
+      this.cameras.main.zoom -= 0.1;
+    });
+
+    this.input.keyboard.on("keydown-E", () => {
+      this.cameras.main.zoom += 0.1;
     });
   }
 
@@ -240,16 +259,33 @@ export class Start extends Phaser.Scene {
   }
 
   update() {
+    this.player.body.setVelocity(0);
+
     if (this.cursors.left.isDown) {
-      this.cameras.main.scrollX -= this.cameraSpeed;
+      this.player.body.setVelocityX(-this.playerSpeed);
+      this.player.anims.play("walk-left", true);
     } else if (this.cursors.right.isDown) {
-      this.cameras.main.scrollX += this.cameraSpeed;
+      this.player.body.setVelocityX(this.playerSpeed);
+      this.player.anims.play("walk-right", true);
     }
 
     if (this.cursors.up.isDown) {
-      this.cameras.main.scrollY -= this.cameraSpeed;
+      this.player.body.setVelocityY(-this.playerSpeed);
+      if (!this.cursors.left.isDown && !this.cursors.right.isDown) {
+        this.player.anims.play("walk-up", true);
+      }
     } else if (this.cursors.down.isDown) {
-      this.cameras.main.scrollY += this.cameraSpeed;
+      this.player.body.setVelocityY(this.playerSpeed);
+      if (!this.cursors.left.isDown && !this.cursors.right.isDown) {
+        this.player.anims.play("walk-down", true);
+      }
+    }
+
+    if (
+      this.player.body.velocity.x === 0 &&
+      this.player.body.velocity.y === 0
+    ) {
+      this.player.anims.stop();
     }
 
     if (
