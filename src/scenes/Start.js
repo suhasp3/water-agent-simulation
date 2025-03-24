@@ -4,13 +4,12 @@ export class Start extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image("nature tiles", "assets/nature.png");
-    this.load.image("barn tiles", "assets/barn.png");
-    this.load.image("barn object tiles", "assets/barn_objects.png");
-    this.load.image("city hall tiles", "assets/city_hall.png");
-    this.load.image("fence tiles", "assets/fence.png");
-    this.load.image("townsquare tiles", "assets/townsquare.png");
-
+    this.load.image("nature_tiles", "assets/nature.png");
+    this.load.image("barn_tiles", "assets/barn.png");
+    this.load.image("barn_object_tiles", "assets/barn_objects.png");
+    this.load.image("city_hall_tiles", "assets/city_hall.png");
+    this.load.image("fence_tiles", "assets/fence.png");
+    this.load.image("town_square_tiles", "assets/townsquare.png");
 
     this.load.tilemapTiledJSON("rivermap", "assets/new_river.json");
     this.load.spritesheet("farmer", "assets/farmer.png", {
@@ -22,19 +21,52 @@ export class Start extends Phaser.Scene {
   create() {
     console.log("create function started");
     const map = this.make.tilemap({ key: "rivermap" });
-    const nature_tileset = map.addTilesetImage("nature", "nature tiles");
-    const barn_tileset = map.addTilesetImage("barn", "barn tiles");
-    const object_tileset = map.addTilesetImage("barn_objects", "barn object tiles");
-    const city_hall_tileset = map.addTilesetImage("city_hall", "city hall tiles");
-    const fence_tileset = map.addTilesetImage("fence", "fence tiles");  
-    const townsquare_tileset = map.addTilesetImage("townsquare", "townsquare tiles");
 
-    const groundLayer = map.createLayer("ground", nature_tileset, 0, 0);
-    // groundLayer.setCollision([152]); // Prevent walking on water
-    const buildingLayer = map.createLayer("buildings", barn_tileset,city_hall_tileset, townsquare_tileset, 0, 0);
-    // objectLayer.setCollision([21,3]);
-    const objectLayer = map.createLayer("objects", object_tileset,fence_tileset, 0, 0);
+    console.log("Map data:", map);
+    console.log("Map layers:", map.layers);
+    console.log("Map tilesets:", map.tilesets);
 
+    const natureTileset = map.addTilesetImage("nature", "nature_tiles");
+    const barnTileset = map.addTilesetImage("barn", "barn_tiles");
+    const barnObjectsTileset = map.addTilesetImage(
+      "barn_objects",
+      "barn_object_tiles"
+    );
+    const cityHallTileset = map.addTilesetImage("city_hall", "city_hall_tiles");
+    const fenceTileset = map.addTilesetImage("fence", "fence_tiles");
+    const townSquareTileset = map.addTilesetImage(
+      "town_square",
+      "town_square_tiles"
+    );
+
+    console.log("Nature tileset:", natureTileset);
+
+    const groundLayer = map.createLayer("ground", [natureTileset], 0, 0);
+
+    console.log("Ground layer:", groundLayer);
+
+    const buildingLayer = map.createLayer(
+      "buildings",
+      [barnTileset, cityHallTileset, townSquareTileset],
+      0,
+      0
+    );
+    const objectLayer = map.createLayer(
+      "objects",
+      [
+        barnObjectsTileset,
+        cityHallTileset,
+        barnTileset,
+        fenceTileset,
+        townSquareTileset,
+      ],
+      0,
+      0
+    );
+
+    groundLayer.setCollisionByProperty({ collides: true });
+    buildingLayer.setCollisionByProperty({ collides: true });
+    objectLayer.setCollisionByProperty({ collides: true });
 
     this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 
@@ -68,10 +100,12 @@ export class Start extends Phaser.Scene {
       repeat: -1,
     });
 
-    this.physics.add.collider(this.npc1, objectLayer);
-    this.physics.add.collider(this.npc2, objectLayer);
     this.physics.add.collider(this.npc1, groundLayer);
     this.physics.add.collider(this.npc2, groundLayer);
+    this.physics.add.collider(this.npc1, buildingLayer);
+    this.physics.add.collider(this.npc2, buildingLayer);
+    this.physics.add.collider(this.npc1, objectLayer);
+    this.physics.add.collider(this.npc2, objectLayer);
 
     this.physics.add.collider(this.npc1, this.npc2);
 
@@ -101,6 +135,13 @@ export class Start extends Phaser.Scene {
 
     this.moveNPC(this.npc1);
     this.moveNPC(this.npc2);
+
+    this.input.keyboard.on("keydown-D", () => {
+      this.physics.world.drawDebug = !this.physics.world.drawDebug;
+      if (!this.physics.world.drawDebug) {
+        this.physics.world.debugGraphic.clear();
+      }
+    });
   }
 
   moveNPC(npc) {
