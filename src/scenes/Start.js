@@ -30,7 +30,7 @@ export class Start extends Phaser.Scene {
     const townsquare_tileset = map.addTilesetImage("townsquare", "townsquare tiles");
 
     const groundLayer = map.createLayer("ground", nature_tileset, 0, 0);
-    groundLayer.setCollision([152]); // Prevent walking on water
+    // groundLayer.setCollision([152]); // Prevent walking on water
     const buildingLayer = map.createLayer("buildings", barn_tileset,city_hall_tileset, townsquare_tileset, 0, 0);
     // objectLayer.setCollision([21,3]);
     const objectLayer = map.createLayer("objects", object_tileset,fence_tileset, 0, 0);
