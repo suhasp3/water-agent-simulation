@@ -144,7 +144,7 @@
         {
          "columns":2,
          "firstgid":1,
-         "image":"..\/..\/..\/..\/Users\/ishit\/Downloads\/image (3).png",
+         "image":"city_hall.png",
          "imageheight":64,
          "imagewidth":64,
          "margin":0,
@@ -157,7 +157,7 @@
         {
          "columns":2,
          "firstgid":5,
-         "image":"..\/..\/..\/..\/Users\/ishit\/Downloads\/image (4).png",
+         "image":"barn.png",
          "imageheight":64,
          "imagewidth":64,
          "margin":0,
@@ -170,7 +170,7 @@
         {
          "columns":2,
          "firstgid":9,
-         "image":"..\/..\/..\/..\/Users\/ishit\/Downloads\/image (5).png",
+         "image":"townsquare.png",
          "imageheight":64,
          "imagewidth":64,
          "margin":0,
@@ -183,7 +183,7 @@
         {
          "columns":20,
          "firstgid":13,
-         "image":"..\/..\/..\/..\/Users\/ishit\/Downloads\/RPG Nature Tileset.png",
+         "image":"nature.png",
          "imageheight":288,
          "imagewidth":641,
          "margin":0,
@@ -196,7 +196,7 @@
         {
          "columns":2,
          "firstgid":193,
-         "image":"..\/..\/..\/..\/Users\/ishit\/Downloads\/image (6).png",
+         "image":"barn_objects.png",
          "imageheight":64,
          "imagewidth":64,
          "margin":0,
@@ -209,7 +209,7 @@
         {
          "columns":2,
          "firstgid":197,
-         "image":"..\/..\/..\/..\/Users\/ishit\/Downloads\/image (9).png",
+         "image":"fence.png",
          "imageheight":96,
          "imagewidth":64,
          "margin":0,
