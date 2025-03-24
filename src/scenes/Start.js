@@ -22,9 +22,7 @@ export class Start extends Phaser.Scene {
     console.log("create function started");
     const map = this.make.tilemap({ key: "rivermap" });
 
-    console.log("Map data:", map);
-    console.log("Map layers:", map.layers);
-    console.log("Map tilesets:", map.tilesets);
+    console.log("Full map data:", map);
 
     const natureTileset = map.addTilesetImage("nature", "nature_tiles");
     const barnTileset = map.addTilesetImage("barn", "barn_tiles");
@@ -39,35 +37,42 @@ export class Start extends Phaser.Scene {
       "town_square_tiles"
     );
 
-    console.log("Nature tileset:", natureTileset);
+    console.log("Tilesets loaded:", {
+      natureTileset,
+      barnTileset,
+      barnObjectsTileset,
+      cityHallTileset,
+      fenceTileset,
+      townSquareTileset,
+    });
 
-    const groundLayer = map.createLayer("ground", [natureTileset], 0, 0);
+    const allTilesets = [
+      natureTileset,
+      barnTileset,
+      barnObjectsTileset,
+      cityHallTileset,
+      fenceTileset,
+      townSquareTileset,
+    ].filter((tileset) => tileset !== null);
 
-    console.log("Ground layer:", groundLayer);
+    const groundLayer = map.createLayer("ground", allTilesets, 0, 0);
+    const buildingLayer = map.createLayer("buildings", allTilesets, 0, 0);
+    const objectLayer = map.createLayer("objects", allTilesets, 0, 0);
 
-    const buildingLayer = map.createLayer(
-      "buildings",
-      [barnTileset, cityHallTileset, townSquareTileset],
-      0,
-      0
-    );
-    const objectLayer = map.createLayer(
-      "objects",
-      [
-        barnObjectsTileset,
-        cityHallTileset,
-        barnTileset,
-        fenceTileset,
-        townSquareTileset,
-      ],
-      0,
-      0
-    );
+    console.log("Ground layer data:", groundLayer.layer.data);
+    console.log("Building layer data:", buildingLayer.layer.data);
+    console.log("Object layer data:", objectLayer.layer.data);
 
-    groundLayer.setCollisionByProperty({ collides: true });
-    buildingLayer.setCollisionByProperty({ collides: true });
-    objectLayer.setCollisionByProperty({ collides: true });
+    groundLayer.setCollision([164, 54]);
+    buildingLayer.setCollision([1,5]);
 
+    groundLayer.setCollisionByExclusion([-1]);
+    buildingLayer.setCollisionByExclusion([-1]);
+    objectLayer.setCollisionByExclusion([-1]);
+
+    groundLayer.setDepth(0);
+    buildingLayer.setDepth(1);
+    objectLayer.setDepth(2);
     this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 
     this.npc1 = this.physics.add.sprite(300, 300, "farmer");
@@ -142,6 +147,67 @@ export class Start extends Phaser.Scene {
         this.physics.world.debugGraphic.clear();
       }
     });
+
+    this.input.on("pointerdown", (pointer) => {
+      const x = pointer.worldX;
+      const y = pointer.worldY;
+
+      const groundTile = groundLayer.getTileAtWorldXY(x, y);
+      const buildingTile = buildingLayer.getTileAtWorldXY(x, y);
+      const objectTile = objectLayer.getTileAtWorldXY(x, y);
+
+      console.log("Clicked position:", { x, y });
+      console.log("Ground tile:", groundTile);
+      console.log("Building tile:", buildingTile);
+      console.log("Object tile:", objectTile);
+    });
+
+    this.input.keyboard.on("keydown-T", () => {
+      if (!this.tileDebug) {
+        this.tileDebug = this.add.graphics();
+        this.updateTileDebug();
+      } else {
+        this.tileDebug.destroy();
+        this.tileDebug = null;
+      }
+    });
+  }
+
+  updateTileDebug() {
+    if (!this.tileDebug) return;
+
+    this.tileDebug.clear();
+
+    const camera = this.cameras.main;
+    const map = this.make.tilemap({ key: "rivermap" });
+
+    const startX = Math.floor(camera.scrollX / 32);
+    const startY = Math.floor(camera.scrollY / 32);
+    const endX = startX + Math.ceil(camera.width / 32 / camera.zoom);
+    const endY = startY + Math.ceil(camera.height / 32 / camera.zoom);
+
+    for (let y = startY; y < endY; y++) {
+      for (let x = startX; x < endX; x++) {
+        const worldX = x * 32;
+        const worldY = y * 32;
+
+        this.tileDebug.lineStyle(1, 0xff0000, 0.5);
+        this.tileDebug.strokeRect(worldX, worldY, 32, 32);
+
+        const buildingTile = map.getTileAt(x, y, false, "buildings");
+        if (buildingTile) {
+          const text = this.add.text(
+            worldX + 2,
+            worldY + 2,
+            buildingTile.index.toString(),
+            { fontSize: "10px", color: "#ff0000" }
+          );
+          text.depth = 100;
+          if (!this.tileTexts) this.tileTexts = [];
+          this.tileTexts.push(text);
+        }
+      }
+    }
   }
 
   moveNPC(npc) {
@@ -202,6 +268,10 @@ export class Start extends Phaser.Scene {
       this.npc2.body.blocked.right
     ) {
       this.moveNPC(this.npc2);
+    }
+
+    if (this.tileDebug) {
+      this.updateTileDebug();
     }
   }
 }
