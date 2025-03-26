@@ -19,7 +19,7 @@ export class Start extends Phaser.Scene {
   }
 
   create() {
-    console.log("create function started");
+    console.log("Starting create function");
     const map = this.make.tilemap({ key: "rivermap" });
 
     console.log("Full map data:", map);
@@ -64,8 +64,8 @@ export class Start extends Phaser.Scene {
     console.log("Object layer data:", objectLayer.layer.data);
 
     groundLayer.setCollision([164, 54]);
-    buildingLayer.setCollision([1,5,13,33]);
-    objectLayer.setCollision([11,194,197,200,198,201]);
+    buildingLayer.setCollision([1, 5, 13, 33]);
+    objectLayer.setCollision([11, 194, 197, 200, 198, 201]);
 
     // groundLayer.setCollisionByExclusion([-1]);
     // buildingLayer.setCollisionByExclusion([-1]);
@@ -150,17 +150,14 @@ export class Start extends Phaser.Scene {
     });
 
     this.input.on("pointerdown", (pointer) => {
-      const x = pointer.worldX;
-      const y = pointer.worldY;
-
-      const groundTile = groundLayer.getTileAtWorldXY(x, y);
-      const buildingTile = buildingLayer.getTileAtWorldXY(x, y);
-      const objectTile = objectLayer.getTileAtWorldXY(x, y);
-
-      console.log("Clicked position:", { x, y });
-      console.log("Ground tile:", groundTile);
-      console.log("Building tile:", buildingTile);
-      console.log("Object tile:", objectTile);
+      const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+      const tileX = Math.floor(worldPoint.x / 32);
+      const tileY = Math.floor(worldPoint.y / 32);
+      console.log(
+        `Clicked - World: (${Math.floor(worldPoint.x)}, ${Math.floor(
+          worldPoint.y
+        )}) Tile: (${tileX}, ${tileY})`
+      );
     });
 
     this.input.keyboard.on("keydown-T", () => {
@@ -172,6 +169,62 @@ export class Start extends Phaser.Scene {
         this.tileDebug = null;
       }
     });
+
+    // Create coordinate display text (centered at top of screen)
+    this.coordinatesText = this.add.text(
+      400, // Center position X
+      20, // Near top of screen
+      "Mouse Position: X: 0 Y: 0\nTile Position: X: 0 Y: 0",
+      {
+        font: "16px Arial",
+        fill: "#ffffff",
+        backgroundColor: "#000000",
+        padding: { x: 10, y: 5 },
+        align: "center",
+      }
+    );
+    this.coordinatesText.setOrigin(0.5, 0); // Center align the text
+    this.coordinatesText.setScrollFactor(0); // Fix to camera
+    this.coordinatesText.setDepth(1000); // Make sure it's on top
+
+    // Add mouse move listener
+    this.input.on("pointermove", (pointer) => {
+      // Get world position (accounts for camera)
+      const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+
+      // Calculate tile position (32 is your tile size)
+      const tileX = Math.floor(worldPoint.x / 32);
+      const tileY = Math.floor(worldPoint.y / 32);
+
+      // Update text with both world coordinates and tile coordinates
+      this.coordinatesText.setText(
+        `Mouse Position: X: ${Math.floor(worldPoint.x)} Y: ${Math.floor(
+          worldPoint.y
+        )}\n` + `Tile Position: X: ${tileX} Y: ${tileY}`
+      );
+    });
+
+    // Handle window resize to keep coordinates text in correct position
+    this.scale.on("resize", (gameSize) => {
+      this.coordinatesText.setPosition(gameSize.width / 2, 20);
+    });
+
+    // Add toggle for coordinate display with C key
+    this.input.keyboard.on("keydown-C", () => {
+      this.coordinatesText.setVisible(!this.coordinatesText.visible);
+    });
+
+    console.log("Created coordinates text:", this.coordinatesText);
+
+    // Force text to update immediately
+    this.coordinatesText.setText("TEST - If you see this, text is working");
+    console.log("Text visibility:", this.coordinatesText.visible);
+    console.log(
+      "Text position:",
+      this.coordinatesText.x,
+      this.coordinatesText.y
+    );
+    console.log("Text depth:", this.coordinatesText.depth);
   }
 
   updateTileDebug() {
