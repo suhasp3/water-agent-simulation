@@ -10,7 +10,7 @@ export class Start extends Phaser.Scene {
     this.load.image("city_hall_tiles", "assets/city_hall.png");
     this.load.image("fence_tiles", "assets/fence.png");
     this.load.image("town_square_tiles", "assets/townsquare.png");
-    this.load.tilemapTiledJSON("rivermap", "assets/new_river.json");
+    this.load.tilemapTiledJSON("rivermap", "assets/river.json");
     this.load.spritesheet("farmer", "assets/farmer.png", { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet("govagent", "assets/govagent.png", { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet("brewer", "assets/brewer.png", { frameWidth: 32, frameHeight: 32 });
