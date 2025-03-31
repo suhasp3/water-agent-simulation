@@ -64,7 +64,10 @@ class Maze:
     _gob = blocks_folder + "/game_object_blocks.csv"
     gob_rows = read_file_to_list(_gob, header=False)
     gob_dict = dict()
-    for i in gob_rows: gob_dict[i[0]] = i[-1]
+    water_level_dict = dict()
+    for i in gob_rows: 
+      gob_dict[i[0]] = i[-2]
+      water_level_dict["water_level"] = i[-1]
     
     _slb = blocks_folder + "/spawning_location_blocks.csv"
     slb_rows = read_file_to_list(_slb, header=False)
@@ -163,7 +166,9 @@ class Maze:
           object_name = ":".join([self.tiles[i][j]["world"], 
                                   self.tiles[i][j]["sector"], 
                                   self.tiles[i][j]["arena"], 
-                                  self.tiles[i][j]["game_object"]])
+                                  self.tiles[i][j]["game_object"],
+                                  #self.tiles[i][j]["water_level"]
+                                  ])
           go_event = (object_name, None, None, None)
           self.tiles[i][j]["events"].add(go_event)
 
@@ -381,6 +386,41 @@ class Maze:
       if event[0] == subject:  
         self.tiles[tile[1]][tile[0]]["events"].remove(event)
 
+def consume_water(self, tile, amount):
+    """
+    Consume water from a resource on the given tile.
+
+    INPUT:
+      tile: The tile coordinate (x, y).
+      amount: The amount of water to consume.
+
+    OUTPUT:
+      success: True if water was consumed, False otherwise.
+    """
+    resources = self.tiles[tile[1]][tile[0]]["water_level"]
+    if resources:
+        if resources["current_level"] >= amount:
+            resources["current_level"] -= amount
+            return True
+    return False
+
+def refill_water(self, tile, amount):
+    """
+    Refill water at a resource on the given tile.
+
+    INPUT:
+      tile: The tile coordinate (x, y).
+      amount: The amount of water to refill.
+
+    OUTPUT:
+      None
+    """
+    resources = self.tiles[tile[1]][tile[0]]["water_level"]
+    if resources:
+        resources["current_level"] = min(
+            resources["current_level"] + amount,
+            resources["capacity"]
+        )
 
 
 

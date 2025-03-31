@@ -62,6 +62,8 @@ class Scratch:
     self.importance_trigger_curr = self.importance_trigger_max
     self.importance_ele_n = 0 
     self.thought_count = 5
+    
+    self.water = 0
 
     # PERSONA PLANNING 
     # <daily_req> is a list of various goals the persona is aiming to achieve
@@ -200,6 +202,7 @@ class Scratch:
       self.importance_ele_n = scratch_load["importance_ele_n"]
       self.thought_count = scratch_load["thought_count"]
 
+      self.water = scratch_load["water"]
       self.daily_req = scratch_load["daily_req"]
       self.f_daily_schedule = scratch_load["f_daily_schedule"]
       self.f_daily_schedule_hourly_org = scratch_load["f_daily_schedule_hourly_org"]
@@ -278,6 +281,7 @@ class Scratch:
     scratch["importance_ele_n"] = self.importance_ele_n
     scratch["thought_count"] = self.thought_count
 
+    scratch["water"] = self.water
     scratch["daily_req"] = self.daily_req
     scratch["f_daily_schedule"] = self.f_daily_schedule
     scratch["f_daily_schedule_hourly_org"] = self.f_daily_schedule_hourly_org
@@ -334,16 +338,16 @@ class Scratch:
     today_min_elapsed += advance
 
     x = 0
-    for task, duration in self.f_daily_schedule: 
+    for task, duration, water in self.f_daily_schedule: 
       x += duration
     x = 0
-    for task, duration in self.f_daily_schedule_hourly_org: 
+    for task, duration, water in self.f_daily_schedule_hourly_org: 
       x += duration
 
     # We then calculate the current index based on that. 
     curr_index = 0
     elapsed = 0
-    for task, duration in self.f_daily_schedule: 
+    for task, duration, water in self.f_daily_schedule: 
       elapsed += duration
       if elapsed > today_min_elapsed: 
         return curr_index
@@ -371,7 +375,7 @@ class Scratch:
     # We then calculate the current index based on that. 
     curr_index = 0
     elapsed = 0
-    for task, duration in self.f_daily_schedule_hourly_org: 
+    for task, duration, water in self.f_daily_schedule_hourly_org: 
       elapsed += duration
       if elapsed > today_min_elapsed: 
         return curr_index
@@ -428,7 +432,9 @@ class Scratch:
 
   def get_str_age(self): 
     return str(self.age)
-
+  
+  def get_water(self):
+    return self.water
 
   def get_str_innate(self): 
     return self.innate
@@ -487,13 +493,14 @@ class Scratch:
                      action_description,
                      action_pronunciatio, 
                      action_event,
+                     water_used,
                      chatting_with, 
                      chat, 
                      chatting_with_buffer,
                      chatting_end_time,
                      act_obj_description, 
                      act_obj_pronunciatio, 
-                     act_obj_event, 
+                     act_obj_event,
                      act_start_time=None): 
     self.act_address = action_address
     self.act_duration = action_duration
@@ -510,6 +517,8 @@ class Scratch:
     self.act_obj_description = act_obj_description
     self.act_obj_pronunciatio = act_obj_pronunciatio
     self.act_obj_event = act_obj_event
+    
+    self.water = self.water - water_used/1000.0
     
     self.act_start_time = self.curr_time
     

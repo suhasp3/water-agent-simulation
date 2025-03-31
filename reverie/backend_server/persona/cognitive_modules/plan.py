@@ -564,7 +564,7 @@ def _determine_action(persona, maze):
   # sequence. We do that here. 
   if curr_index == 0:
     # This portion is invoked if it is the first hour of the day. 
-    act_desp, act_dura = persona.scratch.f_daily_schedule[curr_index]
+    act_desp, act_dura, water = persona.scratch.f_daily_schedule[curr_index]
     if act_dura >= 60: 
       # We decompose if the next action is longer than an hour, and fits the
       # criteria described in determine_decomp.
@@ -572,7 +572,7 @@ def _determine_action(persona, maze):
         persona.scratch.f_daily_schedule[curr_index:curr_index+1] = (
                             generate_task_decomp(persona, act_desp, act_dura))
     if curr_index_60 + 1 < len(persona.scratch.f_daily_schedule):
-      act_desp, act_dura = persona.scratch.f_daily_schedule[curr_index_60+1]
+      act_desp, act_dura, water = persona.scratch.f_daily_schedule[curr_index_60+1]
       if act_dura >= 60: 
         if determine_decomp(act_desp, act_dura): 
           persona.scratch.f_daily_schedule[curr_index_60+1:curr_index_60+2] = (
@@ -585,7 +585,7 @@ def _determine_action(persona, maze):
     # decompose as well, so we check for that too. 
     if persona.scratch.curr_time.hour < 23:
       # And we don't want to decompose after 11 pm. 
-      act_desp, act_dura = persona.scratch.f_daily_schedule[curr_index_60]
+      act_desp, act_dura, act_water = persona.scratch.f_daily_schedule[curr_index_60]
       if act_dura >= 60: 
         if determine_decomp(act_desp, act_dura): 
           persona.scratch.f_daily_schedule[curr_index_60:curr_index_60+1] = (
@@ -610,12 +610,12 @@ def _determine_action(persona, maze):
 
   if 1440 - x_emergency > 0: 
     print ("x_emergency__AAA", x_emergency)
-  persona.scratch.f_daily_schedule += [["sleeping", 1440 - x_emergency]]
+  persona.scratch.f_daily_schedule += [["sleeping", 1440 - x_emergency, 0]]
   
 
 
 
-  act_desp, act_dura = persona.scratch.f_daily_schedule[curr_index] 
+  act_desp, act_dura, water_used = persona.scratch.f_daily_schedule[curr_index] 
 
 
 
@@ -643,6 +643,7 @@ def _determine_action(persona, maze):
                                  act_desp, 
                                  act_pron, 
                                  act_event,
+                                 water_used,
                                  None,
                                  None,
                                  None,
@@ -831,7 +832,7 @@ def _create_react(persona, inserted_act, inserted_act_dur,
   count = 0 
   start_index = None
   end_index = None
-  for act, dur in p.scratch.f_daily_schedule: 
+  for act, dur, wat in p.scratch.f_daily_schedule: 
     if dur_sum >= start_hour * 60 and start_index == None:
       start_index = count
     if dur_sum >= end_hour * 60 and end_index == None: 

@@ -1,4 +1,94 @@
 """
+This module defines various functions to interact with GPT-based models for generating responses, 
+handling prompts, and processing outputs in the context of a persona simulation system. The functions 
+are designed to facilitate tasks such as generating daily plans, creating conversations, summarizing 
+interactions, and extracting insights.
+Functions:
+----------
+1. get_random_alphanumeric(i=6, j=6):
+  Generates a random alphanumeric string of a length between the specified range.
+  
+2. run_gpt_prompt_wake_up_hour(persona, test_input=None, verbose=False):
+  Determines the wake-up hour for a persona based on their attributes.
+  
+3. run_gpt_prompt_daily_plan(persona, wake_up_hour, test_input=None, verbose=False):
+  Generates a daily plan for a persona, outlining their activities for the day.
+  
+4. run_gpt_prompt_generate_hourly_schedule(persona, curr_hour_str, p_f_ds_hourly_org, hour_str, intermission2=None, test_input=None, verbose=False):
+  Creates an hourly schedule for a persona based on their current state and planned activities.
+  
+5. run_gpt_prompt_task_decomp(persona, task, duration, test_input=None, verbose=False):
+  Decomposes a task into smaller subtasks with durations.
+  
+6. run_gpt_prompt_action_sector(action_description, persona, maze, test_input=None, verbose=False):
+  Determines the sector where an action will take place.
+  
+7. run_gpt_prompt_action_arena(action_description, persona, maze, act_world, act_sector, test_input=None, verbose=False):
+  Identifies the specific arena within a sector for an action.
+  
+8. run_gpt_prompt_action_game_object(action_description, persona, maze, temp_address, test_input=None, verbose=False):
+  Determines the game object associated with an action.
+  
+9. run_gpt_prompt_pronunciatio(action_description, persona, verbose=False):
+  Generates an emoji-based representation of an action.
+  
+10. run_gpt_prompt_event_triple(action_description, persona, verbose=False):
+  Creates a triple representation (subject, action, object) for an event.
+  
+11. run_gpt_prompt_act_obj_desc(act_game_object, act_desp, persona, verbose=False):
+  Generates a description of an action involving a game object.
+  
+12. run_gpt_prompt_act_obj_event_triple(act_game_object, act_obj_desc, persona, verbose=False):
+  Creates a triple representation for an event involving a game object.
+  
+13. run_gpt_prompt_new_decomp_schedule(persona, main_act_dur, truncated_act_dur, start_time_hour, end_time_hour, inserted_act, inserted_act_dur, test_input=None, verbose=False):
+  Generates a revised schedule by incorporating a new activity into an existing schedule.
+  
+14. run_gpt_prompt_decide_to_talk(persona, target_persona, retrieved, test_input=None, verbose=False):
+  Decides whether a persona should initiate a conversation with another persona.
+  
+15. run_gpt_prompt_decide_to_react(persona, target_persona, retrieved, test_input=None, verbose=False):
+  Determines how a persona should react to another persona's actions.
+  
+16. run_gpt_prompt_create_conversation(persona, target_persona, curr_loc, test_input=None, verbose=False):
+  Generates a conversation between two personas based on their current context.
+  
+17. run_gpt_prompt_summarize_conversation(persona, conversation, test_input=None, verbose=False):
+  Summarizes the content of a conversation.
+  
+18. run_gpt_prompt_extract_keywords(persona, description, test_input=None, verbose=False):
+  Extracts factual and emotive keywords from a description.
+  
+19. run_gpt_prompt_keyword_to_thoughts(persona, keyword, concept_summary, test_input=None, verbose=False):
+  Converts a keyword into a thought for a persona.
+  
+20. run_gpt_prompt_convo_to_thoughts(persona, init_persona_name, target_persona_name, convo_str, fin_target, test_input=None, verbose=False):
+  Generates thoughts for a persona based on a conversation.
+  
+21. run_gpt_prompt_event_poignancy(persona, event_description, test_input=None, verbose=False):
+  Rates the poignancy of an event on a scale of 1 to 10.
+  
+22. run_gpt_prompt_thought_poignancy(persona, event_description, test_input=None, verbose=False):
+  Rates the poignancy of a thought on a scale of 1 to 10.
+  
+23. run_gpt_prompt_chat_poignancy(persona, event_description, test_input=None, verbose=False):
+  Rates the poignancy of a chat on a scale of 1 to 10.
+  
+24. run_gpt_prompt_focal_pt(persona, statements, n, test_input=None, verbose=False):
+  Identifies focal points or key questions from a set of statements.
+  
+25. run_gpt_prompt_insight_and_guidance(persona, statements, n, test_input=None, verbose=False):
+  Provides insights and guidance based on a set of statements.
+  
+26. run_gpt_prompt_agent_chat_summarize_ideas(persona, target_persona, statements, curr_context, test_input=None, verbose=False):
+  Summarizes the ideas discussed in a chat between two personas.
+  
+27. run_gpt_prompt_agent_chat_summarize_relationship(persona, target_persona, statements, test_input=None, verbose=False):
+  Summarizes the relationship between two personas based on their chat.
+  
+28. run_gpt_prompt_agent_chat(maze, persona, target_persona, curr_context, init_summ_idea, target_summ_idea, test_input=None, verbose=False):
+  Facilitates a chat between two personas based on their current context and summarized ideas.
+
 Author: Joon Sung Park (joonspk@stanford.edu)
 
 File: run_gpt_prompt.py
@@ -353,6 +443,7 @@ def run_gpt_prompt_task_decomp(persona,
     prompt_input += [task]
     prompt_input += [curr_time_range]
     prompt_input += [duration]
+    prompt_input += [persona.scratch.get_water() * 1000.0]
     prompt_input += [persona.scratch.get_str_firstname()]
     return prompt_input
 
@@ -362,7 +453,7 @@ def run_gpt_prompt_task_decomp(persona,
     print ("-==- -==- -==- ")
 
     # TODO SOMETHING HERE sometimes fails... See screenshot
-    temp = [i.strip() for i in gpt_response.split("\n")]
+    temp = [i.strip() for i in gpt_response.split("\n")] #temp is line by line list of gpt_response
     _cr = []
     cr = []
     for count, i in enumerate(temp): 
@@ -376,37 +467,39 @@ def run_gpt_prompt_task_decomp(persona,
       if task[-1] == ".": 
         task = task[:-1]
       duration = int(k[1].split(",")[0].strip())
-      cr += [[task, duration]]
+      water_used = int(k[1].split("liters of water used:")[1].split(")")[0].strip())
+      cr += [[task, duration, water_used]]
 
     total_expected_min = int(prompt.split("(total duration in minutes")[-1]
-                                   .split("):")[0].strip())
+                                   .split(").")[0].strip())
     
     # TODO -- now, you need to make sure that this is the same as the sum of 
     #         the current action sequence. 
-    curr_min_slot = [["dummy", -1],] # (task_name, task_index)
+    curr_min_slot = [["dummy", -1, 0],] # (task_name, task_index, water_used)
     for count, i in enumerate(cr): 
       i_task = i[0] 
       i_duration = i[1]
+      i_water_used = i[2]
 
       i_duration -= (i_duration % 5)
       if i_duration > 0: 
         for j in range(i_duration): 
-          curr_min_slot += [(i_task, count)]       
+          curr_min_slot += [(i_task, count, i_water_used)]       
     curr_min_slot = curr_min_slot[1:]   
 
     if len(curr_min_slot) > total_expected_min: 
       last_task = curr_min_slot[60]
       for i in range(1, 6): 
-        curr_min_slot[-1 * i] = last_task
+        curr_min_slot[-1 * i] = [(last_task[0], last_task[1], 0)]
     elif len(curr_min_slot) < total_expected_min: 
       last_task = curr_min_slot[-1]
       for i in range(total_expected_min - len(curr_min_slot)):
-        curr_min_slot += [last_task]
+        curr_min_slot += [(last_task[0], last_task[1], 0)]
 
     cr_ret = [["dummy", -1],]
-    for task, task_index in curr_min_slot: 
+    for task, task_index, water in curr_min_slot: 
       if task != cr_ret[-1][0]: 
-        cr_ret += [[task, 1]]
+        cr_ret += [[task, 1, water]]
       else: 
         cr_ret[-1][1] += 1
     cr = cr_ret[1:]
@@ -429,7 +522,7 @@ def run_gpt_prompt_task_decomp(persona,
   gpt_param = {"engine": "gpt-3.5-turbo-instruct", "max_tokens": 1000, 
              "temperature": 0, "top_p": 1, "stream": False,
              "frequency_penalty": 0, "presence_penalty": 0, "stop": None}
-  prompt_template = "persona/prompt_template/v2/task_decomp_v3.txt"
+  prompt_template = "persona/prompt_template/v2/task_decomp_v4.txt"
   prompt_input = create_prompt_input(persona, task, duration)
   prompt = generate_prompt(prompt_input, prompt_template)
   fail_safe = get_fail_safe()
@@ -457,16 +550,16 @@ def run_gpt_prompt_task_decomp(persona,
 
   fin_output = []
   time_sum = 0
-  for i_task, i_duration in output: 
+  for i_task, i_duration, i_water in output: 
     time_sum += i_duration
     # HM?????????
     # if time_sum < duration: 
     if time_sum <= duration: 
-      fin_output += [[i_task, i_duration]]
+      fin_output += [[i_task, i_duration, i_water]]
     else: 
       break
   ftime_sum = 0
-  for fi_task, fi_duration in fin_output: 
+  for fi_task, fi_duration, fi_water in fin_output: 
     ftime_sum += fi_duration
   
   # print ("for debugging... line 365", fin_output)
@@ -477,8 +570,8 @@ def run_gpt_prompt_task_decomp(persona,
 
   task_decomp = output
   ret = []
-  for decomp_task, duration in task_decomp: 
-    ret += [[f"{task} ({decomp_task})", duration]]
+  for decomp_task, duration, water in task_decomp: 
+    ret += [[f"{task} ({decomp_task})", duration, water]]
   output = ret
 
 
