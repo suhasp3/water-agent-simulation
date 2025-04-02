@@ -10,7 +10,7 @@ export class Start extends Phaser.Scene {
     this.load.image("city_hall_tiles", "assets/city_hall.png");
     this.load.image("fence_tiles", "assets/fence.png");
     this.load.image("town_square_tiles", "assets/townsquare.png");
-    this.load.tilemapTiledJSON("rivermap", "assets/new_river.json");
+    this.load.tilemapTiledJSON("rivermap", "assets/river.json");
     this.load.spritesheet("farmer", "assets/farmer.png", {
       frameWidth: 32,
       frameHeight: 32,
@@ -258,9 +258,9 @@ export class Start extends Phaser.Scene {
       if (a.arrived && b.arrived && c.arrived) {
         this.dialogueShown = true;
 
-        this.showDialogueAbove(a, "👨‍🌾 If we don’t irrigate now, we’ll lose the entire yield.", 0);
-        this.showDialogueAbove(b, "🧑‍🏢 I’ll see if we can divert some from non-essential sectors and we can prioritize your zones.", 1500);
-       
+        this.showDialogueAbove(a, "👨‍🌾 We need more water for the crops.", 0);
+        this.showDialogueAbove(b, "🧑‍🏢 We can discuss adjustments.", 1500);
+        this.showDialogueAbove(c, "🍺 If farms dry up, so does our barley.", 3000);
       }
     }
   }
