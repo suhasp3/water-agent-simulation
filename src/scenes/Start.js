@@ -258,8 +258,8 @@ export class Start extends Phaser.Scene {
       if (a.arrived && b.arrived && c.arrived) {
         this.dialogueShown = true;
 
-        this.showDialogueAbove(a, "👨‍🌾 We need more water for the crops for this year's harvest.", 0);
-        this.showDialogueAbove(b, "🧑‍🏢 We can discuss adjustments.", 1500);
+        this.showDialogueAbove(a, "👨‍🌾 If we don’t irrigate now, we’ll lose the entire yield.", 0);
+        this.showDialogueAbove(b, "🧑‍🏢 I’ll see if we can divert some from non-essential sectors and we can prioritize your zones.", 1500);
        
       }
     }
