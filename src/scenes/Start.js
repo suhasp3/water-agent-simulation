@@ -10,7 +10,7 @@ export class Start extends Phaser.Scene {
     this.load.image("city_hall_tiles", "assets/city_hall.png");
     this.load.image("fence_tiles", "assets/fence.png");
     this.load.image("town_square_tiles", "assets/townsquare.png");
-    this.load.tilemapTiledJSON("rivermap", "assets/river.json");
+    this.load.tilemapTiledJSON("rivermap", "assets/new_river.json");
     this.load.spritesheet("farmer", "assets/farmer.png", {
       frameWidth: 32,
       frameHeight: 32,
@@ -26,6 +26,7 @@ export class Start extends Phaser.Scene {
   }
 
   create() {
+    // Create tilemap & layers
     const map = this.make.tilemap({ key: "rivermap" });
     const tilesets = [
       map.addTilesetImage("nature", "nature_tiles"),
@@ -36,21 +37,22 @@ export class Start extends Phaser.Scene {
       map.addTilesetImage("town_square", "town_square_tiles"),
     ].filter(Boolean);
 
-    const groundLayer = map.createLayer("ground", tilesets, 0, 0);
-    const buildingLayer = map.createLayer("buildings", tilesets, 0, 0);
-    const objectLayer = map.createLayer("objects", tilesets, 0, 0);
+    map.createLayer("ground", tilesets, 0, 0);
+    map.createLayer("buildings", tilesets, 0, 0);
+    map.createLayer("objects", tilesets, 0, 0);
 
+    // Set up animations
     this.createAnimations("farmer");
     this.createAnimations("govagent");
     this.createAnimations("brewer");
 
-    // NPC definitions
+    // NPCs with initial positions & paths
     this.npc1 = {
       sprite: this.physics.add.sprite(900, 400, "farmer"),
       path: [
         [900, 400],
         [900, 650],
-        [680, 650],
+        [680, 650], // The meeting spot
       ],
     };
     this.npc2 = {
@@ -58,28 +60,32 @@ export class Start extends Phaser.Scene {
       path: [
         [320, 460],
         [320, 600],
-        [640, 600],
+        [640, 600], // The meeting spot
       ],
     };
     this.npc3 = {
       sprite: this.physics.add.sprite(350, 650, "brewer"),
-      path: [[640, 650]],
+      path: [
+        [640, 650], // The meeting spot
+      ],
     };
 
+    // NPC sprite properties
     this.npc1.sprite.setFrame(0).setCollideWorldBounds(true).setDepth(10);
     this.npc2.sprite.setFrame(0).setCollideWorldBounds(true).setDepth(10);
     this.npc3.sprite.setFrame(0).setCollideWorldBounds(true).setDepth(10);
 
-    // Move each NPC
+    // Move them into position
     this.moveNPCOnce(this.npc1, 1500);
     this.moveNPCOnce(this.npc2, 1800);
     this.moveNPCOnce(this.npc3, 1800);
 
-    // Camera setup
+    // Camera
     this.cameras.main.setZoom(1.5);
     this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
     this.cursors = this.input.keyboard.createCursorKeys();
 
+    // Dialogue flags
     this.dialogueShown = false;
     this.dialogueTexts = [];
   }
@@ -116,7 +122,7 @@ export class Start extends Phaser.Scene {
     const moveNext = () => {
       if (index >= npc.path.length) {
         npc.sprite.setFrame(0).stop();
-        npc.sprite.arrived = true; // Mark arrival on the sprite
+        npc.sprite.arrived = true;
         return;
       }
       const [x, y] = npc.path[index];
@@ -147,7 +153,7 @@ export class Start extends Phaser.Scene {
     moveNext();
   }
 
-  // Reusable function to draw a pointer bubble at the bottom-left corner
+  // Pointer bubble at bottom-left
   drawPointerBubbleLeft(g, width, height) {
     // Rounded rect
     g.beginPath();
@@ -155,7 +161,7 @@ export class Start extends Phaser.Scene {
     g.closePath();
     g.fillPath();
 
-    // Pointer triangle at bottom-left
+    // Pointer triangle (bottom-left)
     g.beginPath();
     g.moveTo(12, height);
     g.lineTo(0, height + 12);
@@ -164,7 +170,7 @@ export class Start extends Phaser.Scene {
     g.fillPath();
   }
 
-  // Reusable function to draw a pointer bubble at the bottom-center
+  // Pointer bubble at bottom-center
   drawPointerBubbleCenter(g, width, height) {
     // Rounded rect
     g.beginPath();
@@ -172,7 +178,7 @@ export class Start extends Phaser.Scene {
     g.closePath();
     g.fillPath();
 
-    // Pointer triangle at bottom center
+    // Pointer triangle (bottom-center)
     const pointerSize = 10;
     g.beginPath();
     g.moveTo(width / 2 - pointerSize, height);
@@ -184,58 +190,52 @@ export class Start extends Phaser.Scene {
 
   showDialogueAbove(sprite, text, delay = 0) {
     this.time.delayedCall(delay, () => {
-      // 1) Create the text object with higher resolution to reduce blur.
+      // Create a crisp text (resolution=2)
       const bubbleText = this.add.text(0, 0, text, {
-        font: "16px Arial",  // Larger font
+        font: "16px Arial",
         color: "#000000",
         wordWrap: { width: 150 },
-        resolution: 2        // Crisp text
+        resolution: 2
       });
 
-      // 2) Calculate needed bubble size for the text + padding
       const padding = 10;
       const bubbleWidth = bubbleText.width + padding * 2;
       const bubbleHeight = bubbleText.height + padding * 2;
 
-      // 3) Graphics object to draw bubble background
       const bubbleBg = this.add.graphics();
-      bubbleBg.fillStyle(0xffffff, 0.7); // white, 70% opacity
+      bubbleBg.fillStyle(0xffffff, 0.7);
 
-      // 4) Container to hold text + bubble background
+      // Container to hold bubble + text
       const bubbleContainer = this.add.container(0, 0);
       bubbleContainer.add(bubbleBg);
       bubbleContainer.add(bubbleText);
       bubbleContainer.setSize(bubbleWidth, bubbleHeight);
       bubbleContainer.setDepth(20);
 
-      // Position text in the container
       bubbleText.setPosition(padding, padding);
 
-      // 5) Decide which pointer style & offset to use
+      // Decide bubble style & offsets
       if (sprite.texture.key === "farmer") {
-        // Farmer pointer at bottom-left, moved "up and to the right"
+        // Farmer: pointer at bottom-left, offset up & right
         this.drawPointerBubbleLeft(bubbleBg, bubbleWidth, bubbleHeight);
-        const offsetX = 30;   // shift right
-        const offsetY = -80;  // shift up
-        bubbleContainer.x = sprite.x + offsetX;
-        bubbleContainer.y = sprite.y + offsetY;
+        bubbleContainer.x = sprite.x + 30;
+        bubbleContainer.y = sprite.y - 80;
       }
       else if (sprite.texture.key === "govagent") {
-        // Gov Agent pointer at bottom-center, placed above head
+        // Gov Official: pointer at bottom-center, above head
         this.drawPointerBubbleCenter(bubbleBg, bubbleWidth, bubbleHeight);
         bubbleContainer.x = sprite.x - bubbleWidth / 2;
         bubbleContainer.y = sprite.y - (bubbleHeight + 50);
       }
       else {
-        // Default bubble (for brewer), no pointer
+        // Brewer: no pointer
         bubbleBg.fillRoundedRect(0, 0, bubbleWidth, bubbleHeight, 8);
         bubbleContainer.x = sprite.x - bubbleWidth / 2;
         bubbleContainer.y = sprite.y - (bubbleHeight + 50);
       }
 
-      // 6) Store reference to remove after 3s
+      // Destroy after 3 seconds
       this.dialogueTexts.push(bubbleContainer);
-
       this.time.delayedCall(3000, () => {
         bubbleContainer.destroy();
       });
@@ -243,24 +243,83 @@ export class Start extends Phaser.Scene {
   }
 
   update() {
-    // Move camera with arrow keys (for debugging)
+    // Simple camera controls
     if (this.cursors.left.isDown) this.cameras.main.scrollX -= 10;
     if (this.cursors.right.isDown) this.cameras.main.scrollX += 10;
     if (this.cursors.up.isDown) this.cameras.main.scrollY -= 10;
     if (this.cursors.down.isDown) this.cameras.main.scrollY += 10;
 
-    // Show dialogue after NPCs arrive
+    // Wait until all arrived
     if (!this.dialogueShown) {
-      const a = this.npc1.sprite;
-      const b = this.npc2.sprite;
-      const c = this.npc3.sprite;
+      const farmer = this.npc1.sprite;
+      const gov = this.npc2.sprite;
+      const brewer = this.npc3.sprite; // silent
 
-      if (a.arrived && b.arrived && c.arrived) {
+      if (farmer.arrived && gov.arrived && brewer.arrived) {
         this.dialogueShown = true;
 
-        this.showDialogueAbove(a, "👨‍🌾 We need more water for the crops.", 0);
-        this.showDialogueAbove(b, "🧑‍🏢 We can discuss adjustments.", 1500);
-        this.showDialogueAbove(c, "🍺 If farms dry up, so does our barley.", 3000);
+        // 1) Farmer
+        this.showDialogueAbove(
+          farmer,
+          "👨‍🌾 We need more water for the crops for this year's harvest.",
+          0
+        );
+
+        // 2) Gov Official
+        this.showDialogueAbove(
+          gov,
+          "🧑‍🏢 We can discuss adjustments.",
+          1500
+        );
+
+        // 3) Farmer
+        this.showDialogueAbove(
+          farmer,
+          "👨‍🌾 If we don't irrigate now, we'll lose the entire yield.",
+          3000
+        );
+
+        // 4) Gov Official
+        this.showDialogueAbove(
+          gov,
+          "🧑‍🏢 I'll see if we can divert some from non-essential sectors and we can prioritize your zones.",
+          4500
+        );
+
+        // After last bubble disappears (~7500ms from now), walk them back
+        this.time.delayedCall(7500, () => {
+          // Reset their "arrived" so they can move again
+          farmer.arrived = false;
+          gov.arrived = false;
+          brewer.arrived = false;
+
+          // Reverse paths to go back:
+          // Farmer originally: [900,400] => [900,650] => [680,650]
+          // So reversed: [680,650] => [900,650] => [900,400]
+          this.npc1.path = [
+            [680, 650],
+            [900, 650],
+            [900, 400],
+          ];
+          this.moveNPCOnce(this.npc1, 1500);
+
+          // Gov: [320,460] => [320,600] => [640,600]
+          // Reversed: [640,600] => [320,600] => [320,460]
+          this.npc2.path = [
+            [640, 600],
+            [320, 600],
+            [320, 460],
+          ];
+          this.moveNPCOnce(this.npc2, 1800);
+
+          // Brewer: [350,650], path: [640,650]
+          // Reversed: [640,650] => [350,650]
+          this.npc3.path = [
+            [640, 650],
+            [350, 650],
+          ];
+          this.moveNPCOnce(this.npc3, 1800);
+        });
       }
     }
   }
